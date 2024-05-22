@@ -1,0 +1,32 @@
+android_sdk_config:
+  # The add_gradle_deps: true property allow the bindings to compile the Android dependencies and classpath to the jnigen
+  add_gradle_deps: true
+
+# The suspend_fun_to_async: true property is pretty explanatory itself, but to resume, it will convert Kotlin suspend functions to Dart async functions
+suspend_fun_to_async: true
+
+output:
+  # In the output we set two languages, the first will be native code in "c"  and the other will be the one we use in Flutter, meaning "Dart"
+  c:
+    # In this property you will set the name of the library we are creating, this way jnigen will set the generated code according to this name.
+    library_name: scanner
+    # For this property, you first need to create this path in your project, it will the path were the generated native code will be deployed.
+    path: src/scanner/
+  dart:
+    # For this property, you first need to create this path in your project, it will the path were the generated bindings code will be deployed.
+    path: lib/scanner.dart
+    # This set the structure of the bindings that will be generated in dart, it can be file-per-class(package_structure) or all wrapped in a single file(single_file)
+    structure: single_file
+
+  # In this property we set the directory to the class we will need
+source-path:
+  - 'android/app/src/main/kotlin/com/example/qr_scanner_api'
+
+  # In this property we set the exact class we will need, we set it with his package_name only this way the jnigen will be able to find it
+classes:
+  - 'com.example.qr_scanner_api.Scanner'
+  - 'com.google.mlkit.vision.codescanner.GmsBarcodeScanning'
+  - 'com.google.mlkit.vision.codescanner.GmsBarcodeScanner'
+  - 'com.google.mlkit.vision.barcode.common.Barcode'
+  - 'com.google.mlkit.vision.barcode.common.internal.BarcodeSource'
+  - 'com.google.android.gms.tasks.Task'

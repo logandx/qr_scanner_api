@@ -2,8 +2,11 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jni/jni.dart';
+import 'package:qr_scanner_api/scanner.dart';
 
 void main() {
+  // Jni.spawn();
   runApp(const MyApp());
 }
 
@@ -37,17 +40,38 @@ class _MyHomePageState extends State<MyHomePage> {
   static const platform = MethodChannel('com.example.qr_scanner_api');
   String result = "";
 
+  /// This method won't work because the getCode method was removed from the
+  /// Scanner kotlin class.
   void _getScanner() async {
-    String? scannedResult;
+    String? scanned;
     try {
-      scannedResult = await platform.invokeMethod('getBarCode');
-      log(scannedResult.toString(), name: "Scanned Result:");
+      // final scanner = await Scanner()
+      //     .getCode(JObject.fromReference(Jni.getCachedApplicationContext()));
+      // scanned = scanner.toDartString();
+      // log(scanned.toString(), name: "Scanned Result:");
+      
     } on PlatformException catch (e) {
-      scannedResult = "";
+      scanned = "";
       log(e.message.toString(), name: "Error:");
     }
     setState(() {
-      result = scannedResult ?? "";
+      result = scanned ?? "";
+    });
+  }
+
+  void _getScanner2() async {
+    String? scanned;
+    try {
+      final scanner = GmsBarcodeScanning.getClient(
+          JObject.fromReference(Jni.getCachedApplicationContext()));
+      final result = await Scanner().await0(scanner.startScan());
+      scanned = result.getRawValue().toDartString();
+    } on PlatformException catch (e) {
+      scanned = "";
+      log(e.message.toString(), name: "Error:");
+    }
+    setState(() {
+      result = scanned ?? "";
     });
   }
 
@@ -83,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _getScanner();
+          _getScanner2();
         },
         tooltip: 'Scan',
         child: const Icon(Icons.qr_code_scanner),
